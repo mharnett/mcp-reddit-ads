@@ -1,0 +1,17 @@
+{
+  "reddit_api": {
+    "base_url": "https://ads-api.reddit.com/api/v3",
+    "auth": {
+      "client_id": "",
+      "client_secret": "",
+      "refresh_token": "",
+      "user_agent": "reddit-ad-mcp/1.0"
+    }
+  },
+  "defaults": {
+    "account_id": "",
+    "business_id": "",
+    "report_metrics": ["impressions", "clicks", "spend", "ctr", "cpc", "ecpm"],
+    "date_range_days": 7
+  }
+}

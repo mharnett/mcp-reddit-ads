@@ -1,0 +1,43 @@
+{
+  "name": "mcp-reddit-ads",
+  "version": "1.0.0",
+  "description": "MCP server for Reddit Ads API v3 with campaign, ad group, ad management, and performance reporting.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "config.example.json"
+  ],
+  "scripts": {
+    "build": "tsc && node -e \"fs=require('fs');cp=require('child_process');sha=cp.execSync('git rev-parse --short HEAD 2>/dev/null||echo unknown').toString().trim();fs.writeFileSync('dist/build-info.json',JSON.stringify({sha,builtAt:new Date().toISOString()}))\"",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run"
+  },
+  "author": "drak-marketing",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0",
+    "cockatiel": "^3.2.1",
+    "pino": "^8.21.0",
+    "pino-pretty": "^13.1.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0",
+    "vitest": "^4.0.18"
+  }
+}
