@@ -1,0 +1,23 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.mharnett/reddit-ads",
+  "description": "Reddit Ads MCP: campaigns, ad groups, ads, reporting, and audience targeting.",
+  "repository": {
+    "url": "https://github.com/mharnett/mcp-reddit-ads",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "mcp-reddit-ads",
+      "version": "1.0.0",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "REDDIT_CLIENT_ID", "description": "Reddit OAuth app client ID", "isRequired": true, "isSecret": false },
+        { "name": "REDDIT_CLIENT_SECRET", "description": "Reddit OAuth app client secret", "isRequired": true, "isSecret": true },
+        { "name": "REDDIT_REFRESH_TOKEN", "description": "Reddit OAuth refresh token", "isRequired": true, "isSecret": true }
+      ]
+    }
+  ]
+}
