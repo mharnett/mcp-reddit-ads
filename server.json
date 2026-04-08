@@ -6,12 +6,12 @@
     "url": "https://github.com/mharnett/mcp-reddit-ads",
     "source": "github"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "mcp-reddit-ads",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "transport": { "type": "stdio" },
       "environmentVariables": [
         { "name": "REDDIT_CLIENT_ID", "description": "Reddit OAuth app client ID", "isRequired": true, "isSecret": false },
