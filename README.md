@@ -92,6 +92,8 @@ Environment variables take precedence over config file values.
 }
 ```
 
+**Claude Desktop:** Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows).
+
 ## Tools
 
 ### Context
