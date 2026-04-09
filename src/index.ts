@@ -516,6 +516,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case "reddit_ads_get_performance_report": {
         const acctId = accountId();
+
+        // Future date validation
+        const today_rpt = new Date().toISOString().slice(0, 10);
+        if (args?.start_date && (args.start_date as string) > today_rpt) {
+          return ok({ error: `start_date "${args.start_date}" is in the future. Reports only cover historical data.` });
+        }
+
         const { startDate, endDate } = args?.start_date && args?.end_date
           ? { startDate: args.start_date as string, endDate: args.end_date as string }
           : getDateRange(7);
@@ -542,9 +549,25 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       // ── Write: Campaigns ──
       case "reddit_ads_create_campaign": {
         const acctId = accountId();
+        const dailyBudgetDollars = args?.daily_budget_dollars as number;
+
+        // Budget validation: reject $0 and negative budgets
+        if (dailyBudgetDollars !== undefined && dailyBudgetDollars <= 0) {
+          return ok({ error: "daily_budget_dollars must be positive (e.g., 50.00 for $50/day)" });
+        }
+
+        // Validate configured_status enum
+        if (args?.configured_status) {
+          const validStatuses = ["ACTIVE", "PAUSED"];
+          const statusUpper = (args.configured_status as string).toUpperCase();
+          if (!validStatuses.includes(statusUpper)) {
+            return ok({ error: `Invalid configured_status: "${args.configured_status}". Must be ACTIVE or PAUSED.` });
+          }
+        }
+
         // Note: floating point precision -- 19.99 * 1000000 = 19989999.999999996. Math.round handles this.
         // Reddit API expects micro currency (1/1,000,000 of a dollar).
-        const budgetMicro = Math.round((args?.daily_budget_dollars as number) * 1_000_000);
+        const budgetMicro = Math.round(dailyBudgetDollars * 1_000_000);
         // Safe by default: force PAUSED on create, ignore configured_status from args.
         // Use reddit_ads_update_campaign to activate after review.
         if (args?.configured_status && (args.configured_status as string) !== "PAUSED") {
@@ -563,7 +586,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "reddit_ads_update_campaign": {
         const updates: Record<string, any> = {};
         if (args?.name != null) updates.name = args.name;
-        if (args?.daily_budget_dollars != null) updates.daily_budget_micro = Math.round((args.daily_budget_dollars as number) * 1_000_000);
+        if (args?.daily_budget_dollars != null) updates.goal_value = Math.round((args.daily_budget_dollars as number) * 1_000_000);
         if (args?.configured_status != null) updates.configured_status = args.configured_status;
         if (args?.end_time != null) updates.end_time = args.end_time;
         return ok(await adsManager.updateCampaign(args?.campaign_id as string, updates));
@@ -572,7 +595,23 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       // ── Write: Ad Groups ──
       case "reddit_ads_create_ad_group": {
         const acctId = accountId();
-        const bidMicro = Math.round((args?.bid_dollars as number) * 1_000_000);
+        const bidDollars = args?.bid_dollars as number;
+
+        // Bid validation: reject $0 and negative bids
+        if (bidDollars !== undefined && bidDollars <= 0) {
+          return ok({ error: "bid_dollars must be positive (e.g., 2.50 for $2.50 bid)" });
+        }
+
+        // Validate configured_status enum
+        if (args?.configured_status) {
+          const validStatuses = ["ACTIVE", "PAUSED"];
+          const statusUpper = (args.configured_status as string).toUpperCase();
+          if (!validStatuses.includes(statusUpper)) {
+            return ok({ error: `Invalid configured_status: "${args.configured_status}". Must be ACTIVE or PAUSED.` });
+          }
+        }
+
+        const bidMicro = Math.round(bidDollars * 1_000_000);
         const target: Record<string, any> = {};
         if (args?.subreddit_names) target.communities = args.subreddit_names;
         if (args?.interest_ids) target.interests = args.interest_ids;
@@ -608,6 +647,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       // ── Write: Ads ──
       case "reddit_ads_create_ad": {
         const acctId = accountId();
+
+        // Validate configured_status enum
+        if (args?.configured_status) {
+          const validStatuses = ["ACTIVE", "PAUSED"];
+          const statusUpper = (args.configured_status as string).toUpperCase();
+          if (!validStatuses.includes(statusUpper)) {
+            return ok({ error: `Invalid configured_status: "${args.configured_status}". Must be ACTIVE or PAUSED.` });
+          }
+        }
+
         return ok(await adsManager.createAd(acctId, {
           adGroupId: args?.ad_group_id as string,
           name: args?.name as string,
@@ -639,6 +688,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const statusValue = name === "reddit_ads_pause_items" ? "PAUSED" : "ACTIVE";
         const itemType = args?.item_type as string;
         const itemIds = args?.item_ids as string[];
+
+        // Validate non-empty item_ids
+        if (!itemIds || itemIds.length === 0) {
+          return ok({ error: "No item IDs provided. Specify at least one campaign, ad group, or ad ID." });
+        }
 
         const updateFn: Record<string, (id: string, updates: any) => Promise<any>> = {
           CAMPAIGN: (id, u) => adsManager.updateCampaign(id, u),
