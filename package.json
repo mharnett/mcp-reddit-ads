@@ -1,7 +1,7 @@
 {
   "name": "mcp-reddit-ads",
   "mcpName": "io.github.mharnett/reddit-ads",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "MCP server for Reddit Ads API v3 with campaign, ad group, ad management, and performance reporting.",
   "main": "dist/index.js",
   "bin": {
