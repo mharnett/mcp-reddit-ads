@@ -28,6 +28,8 @@ npm run build
 
 ## Configuration
 
+**Security:** Never share your `.mcp.json` file or commit it to git -- it may contain API credentials. Add `.mcp.json` to your `.gitignore`.
+
 ### 1. Reddit OAuth App
 
 Create a Reddit OAuth app at [reddit.com/prefs/apps](https://www.reddit.com/prefs/apps):

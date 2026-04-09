@@ -545,13 +545,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         // Note: floating point precision -- 19.99 * 1000000 = 19989999.999999996. Math.round handles this.
         // Reddit API expects micro currency (1/1,000,000 of a dollar).
         const budgetMicro = Math.round((args?.daily_budget_dollars as number) * 1_000_000);
+        // Safe by default: force PAUSED on create, ignore configured_status from args.
+        // Use reddit_ads_update_campaign to activate after review.
+        if (args?.configured_status && (args.configured_status as string) !== "PAUSED") {
+          logger.warn({ requested: args.configured_status }, "Overriding configured_status to PAUSED for safety -- use update_campaign to activate");
+        }
         return ok(await adsManager.createCampaign(acctId, {
           name: args?.name as string,
           objective: args?.objective as string,
           dailyBudgetMicro: budgetMicro,
           startTime: args?.start_time as string,
           endTime: args?.end_time as string,
-          configuredStatus: (args?.configured_status as string) || "PAUSED",
+          configuredStatus: "PAUSED", // force PAUSED -- override any user-supplied status
         }));
       }
 
@@ -574,6 +579,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (args?.geo_country_codes) target.geos = (args.geo_country_codes as string[]).map(c => ({ country: c }));
         if (args?.device_types) target.devices = args.device_types;
 
+        // Safe by default: force PAUSED on create
+        if (args?.configured_status && (args.configured_status as string) !== "PAUSED") {
+          logger.warn({ requested: args.configured_status }, "Overriding configured_status to PAUSED for safety -- use update_ad_group to activate");
+        }
         return ok(await adsManager.createAdGroup(acctId, {
           campaignId: args?.campaign_id as string,
           name: args?.name as string,
@@ -582,7 +591,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           endTime: args?.end_time as string,
           target: Object.keys(target).length > 0 ? target : undefined,
           bidStrategy: (args?.bid_strategy as string) || "CPM",
-          configuredStatus: (args?.configured_status as string) || "PAUSED",
+          configuredStatus: "PAUSED", // force PAUSED -- override any user-supplied status
           optimizationGoal: args?.optimization_goal as string,
         }));
       }
@@ -687,9 +696,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       response.details = rawError.stack;
     }
 
+    // Size-limit error responses through safeResponse to prevent oversized payloads
+    const safeErrorResponse = safeResponse(response, "error");
     return {
       isError: true,
-      content: [{ type: "text", text: JSON.stringify(response, null, 2) }],
+      content: [{ type: "text", text: JSON.stringify(safeErrorResponse, null, 2) }],
     };
   }
 });
