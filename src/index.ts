@@ -30,6 +30,12 @@ try {
   console.error(`[build] ${__cliPkg.name}@${__cliPkg.version} (dev mode)`);
 }
 
+// Version safety: warn if running a deprecated or dangerously old version
+const __minimumSafeVersion = "1.0.5"; // minimum version with input sanitization
+if (__cliPkg.version < __minimumSafeVersion) {
+  console.error(`[WARNING] Running deprecated version ${__cliPkg.version}. Minimum safe version is ${__minimumSafeVersion}. Please upgrade.`);
+}
+
 // CLI flags
 if (process.argv.includes("--help") || process.argv.includes("-h")) {
   console.error(`${__cliPkg.name} v${__cliPkg.version}\n`);
@@ -82,7 +88,7 @@ function loadConfig(): Config {
   if (existsSync(configPath)) {
     config = JSON.parse(readFileSync(configPath, "utf-8"));
   } else {
-    // Build config entirely from env vars
+    // Build config entirely from env vars (see config.example.json for file-based setup)
     config = {
       reddit_api: {
         base_url: "https://ads-api.reddit.com/api/v3",
@@ -216,9 +222,13 @@ class RedditAdsManager {
   }
 
   private resolveAccountId(accountId?: string): string {
-    if (accountId) return accountId;
-    if (this.config.defaults.account_id) return this.config.defaults.account_id;
-    throw new Error("No account_id provided and no default configured");
+    const id = accountId || this.config.defaults.account_id;
+    if (!id) throw new Error("No account_id provided and no default configured");
+    // Validate account_id format: Reddit account IDs use "t2_" prefix
+    if (!id.startsWith("t2_")) {
+      throw new Error(`Invalid account_id format: "${id}". Reddit account IDs must start with "t2_" prefix (e.g., "t2_abc123").`);
+    }
+    return id;
   }
 
   // ── Read operations ──────────────────────────────────────────────

@@ -4,7 +4,7 @@ export const tools: Tool[] = [
   {
     name: "reddit_ads_get_client_context",
     description:
-      "Get a quick overview of the Reddit Ads account. Returns account info and active campaign count.",
+      "Get a quick overview and health status of the Reddit Ads account. Returns account info and active campaign count.",
     inputSchema: {
       type: "object",
       properties: {
