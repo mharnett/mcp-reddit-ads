@@ -47,6 +47,12 @@ if (process.argv.includes("--version") || process.argv.includes("-v")) {
 }
 
 // ============================================
+// ENV VAR TRIMMING
+// ============================================
+
+const envTrimmed = (key: string): string => (process.env[key] || "").trim().replace(/^["']|["']$/g, "");
+
+// ============================================
 // CONFIGURATION
 // ============================================
 
@@ -97,10 +103,10 @@ function loadConfig(): Config {
   }
 
   // Environment overrides (always applied)
-  if (process.env.REDDIT_CLIENT_ID) config.reddit_api.auth.client_id = process.env.REDDIT_CLIENT_ID;
-  if (process.env.REDDIT_CLIENT_SECRET) config.reddit_api.auth.client_secret = process.env.REDDIT_CLIENT_SECRET;
-  if (process.env.REDDIT_REFRESH_TOKEN) config.reddit_api.auth.refresh_token = process.env.REDDIT_REFRESH_TOKEN;
-  if (process.env.REDDIT_ACCOUNT_ID) config.defaults.account_id = process.env.REDDIT_ACCOUNT_ID;
+  if (process.env.REDDIT_CLIENT_ID) config.reddit_api.auth.client_id = envTrimmed("REDDIT_CLIENT_ID");
+  if (process.env.REDDIT_CLIENT_SECRET) config.reddit_api.auth.client_secret = envTrimmed("REDDIT_CLIENT_SECRET");
+  if (process.env.REDDIT_REFRESH_TOKEN) config.reddit_api.auth.refresh_token = envTrimmed("REDDIT_REFRESH_TOKEN");
+  if (process.env.REDDIT_ACCOUNT_ID) config.defaults.account_id = envTrimmed("REDDIT_ACCOUNT_ID");
 
   return config;
 }
@@ -690,6 +696,10 @@ process.on("SIGINT", () => {
 
 process.on("SIGPIPE", () => {
   // Client disconnected -- expected during shutdown
+});
+
+process.on("unhandledRejection", (reason) => {
+  console.error("[error] Unhandled promise rejection:", reason);
 });
 
 main().catch(console.error);
