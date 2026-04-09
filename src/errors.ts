@@ -66,7 +66,8 @@ export function classifyError(error: any): Error {
     bodyError?.code === 401
   ) {
     return new RedditAdsAuthError(
-      `Reddit Ads auth failed: ${message}. Refresh token may be expired. Update REDDIT_REFRESH_TOKEN in Keychain.`,
+      `Reddit Ads auth failed: ${message}. Refresh token may be expired. Update your REDDIT_REFRESH_TOKEN environment variable.` +
+      (process.platform === "darwin" ? ` On macOS: security add-generic-password -a reddit-ads-mcp -s REDDIT_REFRESH_TOKEN -w '<token>' -U` : ""),
       error,
     );
   }

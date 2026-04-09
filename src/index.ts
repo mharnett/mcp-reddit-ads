@@ -158,7 +158,9 @@ class RedditAdsManager {
 
     const creds = validateCredentials();
     if (!creds.valid) {
-      const msg = `[STARTUP ERROR] Missing required credentials: ${creds.missing.join(", ")}. MCP will not function. Check run-mcp.sh and Keychain entries.`;
+      const msg = `[STARTUP ERROR] Missing required credentials: ${creds.missing.join(", ")}. ` +
+        `Set these environment variables before starting the server.` +
+        (process.platform === "darwin" ? ` On macOS, tokens can be stored in Keychain and loaded via run-mcp.sh.` : "");
       console.error(msg);
       throw new RedditAdsAuthError(msg);
     }
@@ -196,6 +198,23 @@ class RedditAdsManager {
     const data = await resp.json() as any;
     this.accessToken = data.access_token;
     this.tokenExpiry = Date.now() + ((data.expires_in || 3600) - 60) * 1000;
+
+    // Persist rotated refresh token so restarts use the latest
+    if (data.refresh_token && data.refresh_token !== auth.refresh_token) {
+      auth.refresh_token = data.refresh_token;
+      if (process.platform === "darwin") {
+        try {
+          const { execFileSync } = await import("child_process");
+          try { execFileSync("security", ["delete-generic-password", "-a", "reddit-ads-mcp", "-s", "REDDIT_REFRESH_TOKEN"], { stdio: "ignore" }); } catch { /* may not exist yet */ }
+          execFileSync("security", ["add-generic-password", "-a", "reddit-ads-mcp", "-s", "REDDIT_REFRESH_TOKEN", "-w", data.refresh_token]);
+          console.error("[token] Rotated refresh token persisted to Keychain");
+        } catch (err) {
+          console.error("[token] WARNING: Failed to persist rotated refresh token to Keychain:", err);
+        }
+      } else {
+        console.error("[token] Refresh token rotated. Update your REDDIT_REFRESH_TOKEN environment variable to persist across restarts.");
+      }
+    }
 
     return this.accessToken!;
   }
@@ -741,7 +760,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     };
 
     if (error instanceof RedditAdsAuthError) {
-      response.action_required = "Re-authenticate: refresh token may be expired. Run oauth_flow.py and update Keychain.";
+      response.action_required = "Re-authenticate: refresh token may be expired. Update your REDDIT_REFRESH_TOKEN environment variable." +
+        (process.platform === "darwin" ? " On macOS: security add-generic-password -a reddit-ads-mcp -s REDDIT_REFRESH_TOKEN -w '<token>' -U" : "");
     } else if (error instanceof RedditAdsRateLimitError) {
       response.retry_after_ms = error.retryAfterMs;
       response.action_required = `Rate limited. Retry after ${Math.ceil(error.retryAfterMs / 1000)} seconds.`;
