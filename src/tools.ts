@@ -6,6 +6,7 @@ export const tools: Tool[] = [
     description:
       "Get a quick overview and health status of the Reddit Ads account. Returns account info and active campaign count.",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {
         account_id: {
@@ -20,6 +21,7 @@ export const tools: Tool[] = [
     description:
       "List all Reddit ad accounts accessible to this user.",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {},
     },
@@ -29,6 +31,7 @@ export const tools: Tool[] = [
     description:
       "List all campaigns for a Reddit ad account.",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {
         account_id: {
@@ -43,10 +46,11 @@ export const tools: Tool[] = [
     description:
       "List ad groups for a Reddit ad account, optionally filtered by campaign.",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {
         account_id: { type: "string", description: "Ad account ID. Uses default if not provided." },
-        campaign_id: { type: "string", description: "Optional - filter to a specific campaign." },
+        campaign_id: { type: "string", description: "Optional numeric string campaign ID - filter to a specific campaign." },
       },
     },
   },
@@ -55,6 +59,7 @@ export const tools: Tool[] = [
     description:
       "List ads for a Reddit ad account, optionally filtered by ad group.",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {
         account_id: { type: "string", description: "Ad account ID. Uses default if not provided." },
@@ -67,6 +72,7 @@ export const tools: Tool[] = [
     description:
       "Get a performance report for Reddit ads. Spend values are in microcurrency (divide by 1,000,000 for dollars).",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {
         account_id: { type: "string", description: "Ad account ID. Uses default if not provided." },
@@ -91,6 +97,7 @@ export const tools: Tool[] = [
     description:
       "Get daily performance breakdown for the last N days. Convenience tool with date breakdown.",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {
         account_id: { type: "string", description: "Ad account ID. Uses default if not provided." },
@@ -103,6 +110,7 @@ export const tools: Tool[] = [
     description:
       "Create a new Reddit ad campaign. Created as PAUSED by default for safety.",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {
         name: { type: "string", description: "Campaign name." },
@@ -124,9 +132,10 @@ export const tools: Tool[] = [
     description:
       "Update an existing Reddit campaign. Only pass fields you want to change.",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {
-        campaign_id: { type: "string", description: "The campaign ID to update." },
+        campaign_id: { type: "string", description: "The numeric string campaign ID to update." },
         account_id: { type: "string", description: "Ad account ID. Uses default if not provided." },
         name: { type: "string", description: "New campaign name." },
         daily_budget_dollars: { type: "number", description: "New daily budget in dollars." },
@@ -141,9 +150,10 @@ export const tools: Tool[] = [
     description:
       "Create an ad group within a campaign. Created as PAUSED by default.",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {
-        campaign_id: { type: "string", description: "Parent campaign ID." },
+        campaign_id: { type: "string", description: "Parent numeric string campaign ID." },
         name: { type: "string", description: "Ad group name." },
         bid_dollars: { type: "number", description: "Bid amount in dollars (e.g. 5.00 for $5 CPM)." },
         start_time: { type: "string", description: "Start datetime in ISO 8601." },
@@ -165,6 +175,7 @@ export const tools: Tool[] = [
     description:
       "Update an existing ad group. Only pass fields you want to change.",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {
         ad_group_id: { type: "string", description: "The ad group ID to update." },
@@ -182,6 +193,7 @@ export const tools: Tool[] = [
     description:
       "Create a new Reddit ad within an ad group. Created as PAUSED by default.",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {
         ad_group_id: { type: "string", description: "Parent ad group ID." },
@@ -205,6 +217,7 @@ export const tools: Tool[] = [
     description:
       "Update an existing ad. Only pass fields you want to change.",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {
         ad_id: { type: "string", description: "The ad ID to update." },
@@ -223,6 +236,7 @@ export const tools: Tool[] = [
     description:
       "Pause one or more campaigns, ad groups, or ads.",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {
         item_type: { type: "string", description: "Type: CAMPAIGN, AD_GROUP, or AD." },
@@ -237,6 +251,7 @@ export const tools: Tool[] = [
     description:
       "Enable (unpause) one or more campaigns, ad groups, or ads.",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {
         item_type: { type: "string", description: "Type: CAMPAIGN, AD_GROUP, or AD." },
@@ -251,6 +266,7 @@ export const tools: Tool[] = [
     description:
       "Search for subreddits to use as targeting in ad groups.",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {
         query: { type: "string", description: 'Search query (e.g. "ecommerce", "fulfillment", "shopify").' },
@@ -263,6 +279,7 @@ export const tools: Tool[] = [
     description:
       "Get available interest categories for ad group targeting.",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {},
     },
@@ -272,6 +289,7 @@ export const tools: Tool[] = [
     description:
       "Search geographic targeting options (countries, regions).",
     inputSchema: {
+      additionalProperties: false,
       type: "object",
       properties: {
         query: { type: "string", description: 'Search query (e.g. "United States", "California").' },
