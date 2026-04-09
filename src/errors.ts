@@ -14,7 +14,7 @@ export class RedditAdsRateLimitError extends Error {
     public readonly retryAfterMs: number,
     cause?: unknown,
   ) {
-    super(`Rate limited, retry after ${retryAfterMs}ms`);
+    super(`Reddit Ads rate limited, retry after ${retryAfterMs}ms`);
     this.name = "RedditAdsRateLimitError";
     this.cause = cause;
   }
@@ -56,7 +56,7 @@ export function classifyError(error: any): Error {
     message.includes("Forbidden")
   ) {
     return new RedditAdsAuthError(
-      `Auth failed: ${message}. Refresh token may be expired. Update REDDIT_REFRESH_TOKEN in Keychain.`,
+      `Reddit Ads auth failed: ${message}. Refresh token may be expired. Update REDDIT_REFRESH_TOKEN in Keychain.`,
       error,
     );
   }
