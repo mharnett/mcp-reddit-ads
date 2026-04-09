@@ -50,13 +50,34 @@ interface Config {
 }
 
 function loadConfig(): Config {
+  // Try config.json first
   const configPath = join(dirname(new URL(import.meta.url).pathname), "..", "config.json");
-  if (!existsSync(configPath)) {
-    throw new Error(`Config file not found at ${configPath}. Copy config.example.json to config.json.`);
-  }
-  const config: Config = JSON.parse(readFileSync(configPath, "utf-8"));
+  let config: Config;
 
-  // Environment overrides
+  if (existsSync(configPath)) {
+    config = JSON.parse(readFileSync(configPath, "utf-8"));
+  } else {
+    // Build config entirely from env vars
+    config = {
+      reddit_api: {
+        base_url: "https://ads-api.reddit.com/api/v3",
+        auth: {
+          client_id: "",
+          client_secret: "",
+          refresh_token: "",
+          user_agent: "reddit-ad-mcp/1.0",
+        },
+      },
+      defaults: {
+        account_id: "",
+        business_id: "",
+        report_metrics: ["impressions", "clicks", "spend", "ctr", "cpc", "ecpm"],
+        date_range_days: 7,
+      },
+    };
+  }
+
+  // Environment overrides (always applied)
   if (process.env.REDDIT_CLIENT_ID) config.reddit_api.auth.client_id = process.env.REDDIT_CLIENT_ID;
   if (process.env.REDDIT_CLIENT_SECRET) config.reddit_api.auth.client_secret = process.env.REDDIT_CLIENT_SECRET;
   if (process.env.REDDIT_REFRESH_TOKEN) config.reddit_api.auth.refresh_token = process.env.REDDIT_REFRESH_TOKEN;
