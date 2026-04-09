@@ -18,29 +18,31 @@ import {
 import { tools } from "./tools.js";
 import { withResilience, safeResponse, logger } from "./resilience.js";
 
+// CLI package info
+const __cliPkg = JSON.parse(readFileSync(join(dirname(new URL(import.meta.url).pathname), "..", "package.json"), "utf-8"));
+
 // Log build fingerprint at startup
 try {
   const __buildInfoDir = dirname(new URL(import.meta.url).pathname);
   const buildInfo = JSON.parse(readFileSync(join(__buildInfoDir, "build-info.json"), "utf-8"));
   console.error(`[build] SHA: ${buildInfo.sha} (${buildInfo.builtAt})`);
 } catch {
-  // build-info.json not present (dev mode)
+  console.error(`[build] ${__cliPkg.name}@${__cliPkg.version} (dev mode)`);
 }
 
 // CLI flags
-const __cliPkg = JSON.parse(readFileSync(join(dirname(new URL(import.meta.url).pathname), "..", "package.json"), "utf-8"));
 if (process.argv.includes("--help") || process.argv.includes("-h")) {
-  console.log(`${__cliPkg.name} v${__cliPkg.version}\n`);
-  console.log(`Usage: ${__cliPkg.name} [options]\n`);
-  console.log("MCP server communicating via stdio. Configure in your .mcp.json.\n");
-  console.log("Options:");
-  console.log("  --help, -h       Show this help message");
-  console.log("  --version, -v    Show version number");
-  console.log(`\nDocumentation: https://github.com/mharnett/mcp-reddit-ads`);
+  console.error(`${__cliPkg.name} v${__cliPkg.version}\n`);
+  console.error(`Usage: ${__cliPkg.name} [options]\n`);
+  console.error("MCP server communicating via stdio. Configure in your .mcp.json.\n");
+  console.error("Options:");
+  console.error("  --help, -h       Show this help message");
+  console.error("  --version, -v    Show version number");
+  console.error(`\nDocumentation: https://github.com/mharnett/mcp-reddit-ads`);
   process.exit(0);
 }
 if (process.argv.includes("--version") || process.argv.includes("-v")) {
-  console.log(__cliPkg.version);
+  console.error(__cliPkg.version);
   process.exit(0);
 }
 
@@ -684,6 +686,10 @@ process.on("SIGTERM", () => {
 process.on("SIGINT", () => {
   console.error("[shutdown] SIGINT received, exiting");
   process.exit(0);
+});
+
+process.on("SIGPIPE", () => {
+  // Client disconnected -- expected during shutdown
 });
 
 main().catch(console.error);
