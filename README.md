@@ -20,7 +20,7 @@ npm install mcp-reddit-ads
 Or clone the repository:
 
 ```bash
-git clone https://github.com/drak-marketing/mcp-reddit-ads.git
+git clone https://github.com/mharnett/mcp-reddit-ads.git
 cd mcp-reddit-ads
 npm install
 npm run build
@@ -98,54 +98,54 @@ Environment variables take precedence over config file values.
 
 | Tool | Description |
 |---|---|
-| `get_client_context` | Get account info and verify API connectivity |
-| `get_accounts` | List all ad accounts accessible to the authenticated user |
+| `reddit_ads_get_client_context` | Get account info and verify API connectivity |
+| `reddit_ads_get_accounts` | List all ad accounts accessible to the authenticated user |
 
 ### Read
 
 | Tool | Description |
 |---|---|
-| `get_campaigns` | List campaigns with optional status filter |
-| `get_ad_groups` | List ad groups for a campaign |
-| `get_ads` | List ads for an ad group |
-| `get_performance_report` | Aggregated performance metrics for campaigns/ad groups/ads |
-| `get_daily_performance` | Day-by-day performance breakdown |
+| `reddit_ads_get_campaigns` | List campaigns with optional status filter |
+| `reddit_ads_get_ad_groups` | List ad groups for a campaign |
+| `reddit_ads_get_ads` | List ads for an ad group |
+| `reddit_ads_get_performance_report` | Aggregated performance metrics for campaigns/ad groups/ads |
+| `reddit_ads_get_daily_performance` | Day-by-day performance breakdown |
 
 ### Write: Campaigns
 
 | Tool | Description |
 |---|---|
-| `create_campaign` | Create a new campaign (PAUSED by default) |
-| `update_campaign` | Update campaign name, budget, objective, or status |
+| `reddit_ads_create_campaign` | Create a new campaign (PAUSED by default) |
+| `reddit_ads_update_campaign` | Update campaign name, budget, objective, or status |
 
 ### Write: Ad Groups
 
 | Tool | Description |
 |---|---|
-| `create_ad_group` | Create a new ad group with targeting (PAUSED by default) |
-| `update_ad_group` | Update ad group bid, targeting, or status |
+| `reddit_ads_create_ad_group` | Create a new ad group with targeting (PAUSED by default) |
+| `reddit_ads_update_ad_group` | Update ad group bid, targeting, or status |
 
 ### Write: Ads
 
 | Tool | Description |
 |---|---|
-| `create_ad` | Create a new ad with headline, body, URL, and media (PAUSED by default) |
-| `update_ad` | Update ad creative or status |
+| `reddit_ads_create_ad` | Create a new ad with headline, body, URL, and media (PAUSED by default) |
+| `reddit_ads_update_ad` | Update ad creative or status |
 
 ### Bulk Operations
 
 | Tool | Description |
 |---|---|
-| `pause_items` | Pause multiple campaigns, ad groups, or ads at once |
-| `enable_items` | Enable multiple campaigns, ad groups, or ads at once |
+| `reddit_ads_pause_items` | Pause multiple campaigns, ad groups, or ads at once |
+| `reddit_ads_enable_items` | Enable multiple campaigns, ad groups, or ads at once |
 
 ### Targeting
 
 | Tool | Description |
 |---|---|
-| `search_subreddits` | Search for subreddits by keyword for targeting |
-| `get_interest_categories` | List available interest categories for targeting |
-| `search_geo_targets` | Search for geographic targeting options (countries, regions, metros) |
+| `reddit_ads_search_subreddits` | Search for subreddits by keyword for targeting |
+| `reddit_ads_get_interest_categories` | List available interest categories for targeting |
+| `reddit_ads_search_geo_targets` | Search for geographic targeting options (countries, regions, metros) |
 
 ## Key Conventions
 
