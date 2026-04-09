@@ -431,7 +431,7 @@ const config = loadConfig();
 const adsManager = new RedditAdsManager(config);
 
 const server = new Server(
-  { name: "mcp-reddit-ads", version: "1.0.0" },
+  { name: __cliPkg.name, version: __cliPkg.version },
   { capabilities: { tools: {} } },
 );
 
@@ -675,5 +675,15 @@ async function main() {
   await server.connect(transport);
   console.error("[startup] MCP Reddit Ads server running");
 }
+
+process.on("SIGTERM", () => {
+  console.error("[shutdown] SIGTERM received, exiting");
+  process.exit(0);
+});
+
+process.on("SIGINT", () => {
+  console.error("[shutdown] SIGINT received, exiting");
+  process.exit(0);
+});
 
 main().catch(console.error);
