@@ -17,6 +17,8 @@ import {
 } from "./errors.js";
 import { tools } from "./tools.js";
 import { withResilience, safeResponse, logger } from "./resilience.js";
+import { filterTools, assertWriteAllowed, isWriteEnabled } from "./writeGate.js";
+import { checkForUpdate } from "./updateNotifier.js";
 import v8 from "v8";
 
 // CLI package info
@@ -37,6 +39,9 @@ const __semverLt = (a: string, b: string) => { const pa = a.split(".").map(Numbe
 if (__semverLt(__cliPkg.version, __minimumSafeVersion)) {
   console.error(`[WARNING] Running deprecated version ${__cliPkg.version}. Minimum safe version is ${__minimumSafeVersion}. Please upgrade.`);
 }
+
+// Fire-and-forget npm outdated check. Non-blocking; any error is swallowed.
+void checkForUpdate(__cliPkg.name, __cliPkg.version).catch(() => {});
 
 // CLI flags
 if (process.argv.includes("--help") || process.argv.includes("-h")) {
@@ -485,7 +490,7 @@ const server = new Server(
   { capabilities: { tools: {} } },
 );
 
-server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools }));
+server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: filterTools(tools) }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
@@ -495,6 +500,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   });
 
   try {
+    assertWriteAllowed(name);
     const accountId = () => {
       const id = args?.account_id as string | undefined;
       if (id) return id;
@@ -789,6 +795,11 @@ async function main() {
     console.error(`[STARTUP WARNING] Auth check FAILED: ${err.message}`);
     console.error(`[STARTUP WARNING] MCP will start but API calls may fail until auth is fixed.`);
   }
+
+  const writeMode = isWriteEnabled()
+    ? "WRITE ENABLED (REDDIT_ADS_MCP_WRITE=true) -- mutating tools are exposed"
+    : "READ-ONLY (default) -- set REDDIT_ADS_MCP_WRITE=true to enable mutating tools";
+  console.error(`[startup] Write mode: ${writeMode}`);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
