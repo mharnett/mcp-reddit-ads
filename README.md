@@ -47,6 +47,11 @@ Set credentials via environment variables:
 | `REDDIT_CLIENT_ID` | OAuth app client ID |
 | `REDDIT_CLIENT_SECRET` | OAuth app client secret |
 | `REDDIT_REFRESH_TOKEN` | OAuth refresh token with ads scopes |
+| `REDDIT_ADS_MCP_WRITE` | Set to `true` to enable mutating tools (create/update/pause/enable). Unset = read-only (default). |
+
+### Read-only by default
+
+As of v1.1.0 the MCP starts in **read-only mode**. The 10 read/report/targeting tools are always exposed, but the 8 mutating tools (create/update campaigns, ad groups, ads, and bulk pause/enable) are hidden from the tool list and refused at call time unless `REDDIT_ADS_MCP_WRITE=true` is set in the server's environment. This guards against a casual chat message accidentally mutating live ad spend. Enable writes deliberately, for the sessions where you actually intend to ship changes.
 
 ### 3. Config File
 
