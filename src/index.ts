@@ -365,9 +365,9 @@ class RedditAdsManager {
     );
   }
 
-  async updateCampaign(campaignId: string, updates: Record<string, any>): Promise<any> {
+  async updateCampaign(accountId: string, campaignId: string, updates: Record<string, any>): Promise<any> {
     return withResilience(
-      () => this.apiCall("PUT", `/campaigns/${campaignId}`, { body: { data: updates } }),
+      () => this.apiCall("PUT", `/ad_accounts/${accountId}/campaigns/${campaignId}`, { body: { data: updates } }),
       "updateCampaign",
     );
   }
@@ -403,9 +403,9 @@ class RedditAdsManager {
     );
   }
 
-  async updateAdGroup(adGroupId: string, updates: Record<string, any>): Promise<any> {
+  async updateAdGroup(accountId: string, adGroupId: string, updates: Record<string, any>): Promise<any> {
     return withResilience(
-      () => this.apiCall("PUT", `/ad_groups/${adGroupId}`, { body: { data: updates } }),
+      () => this.apiCall("PUT", `/ad_accounts/${accountId}/ad_groups/${adGroupId}`, { body: { data: updates } }),
       "updateAdGroup",
     );
   }
@@ -443,9 +443,9 @@ class RedditAdsManager {
     );
   }
 
-  async updateAd(adId: string, updates: Record<string, any>): Promise<any> {
+  async updateAd(accountId: string, adId: string, updates: Record<string, any>): Promise<any> {
     return withResilience(
-      () => this.apiCall("PUT", `/ads/${adId}`, { body: { data: updates } }),
+      () => this.apiCall("PUT", `/ad_accounts/${accountId}/ads/${adId}`, { body: { data: updates } }),
       "updateAd",
     );
   }
@@ -617,7 +617,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (args?.daily_budget_dollars != null) updates.goal_value = Math.round((args.daily_budget_dollars as number) * 1_000_000);
         if (args?.configured_status != null) updates.configured_status = args.configured_status;
         if (args?.end_time != null) updates.end_time = args.end_time;
-        return ok(await adsManager.updateCampaign(args?.campaign_id as string, updates));
+        return ok(await adsManager.updateCampaign(accountId(), args?.campaign_id as string, updates));
       }
 
       // ── Write: Ad Groups ──
@@ -678,7 +678,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           if (args?.keywords != null) targeting.keywords = args.keywords;
           updates.targeting = targeting;
         }
-        return ok(await adsManager.updateAdGroup(args?.ad_group_id as string, updates));
+        return ok(await adsManager.updateAdGroup(accountId(), args?.ad_group_id as string, updates));
       }
 
       // ── Write: Ads ──
@@ -716,7 +716,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (args?.click_url != null) updates.click_url = args.click_url;
         if (args?.configured_status != null) updates.configured_status = args.configured_status;
         if (args?.call_to_action != null) updates.call_to_action = args.call_to_action;
-        return ok(await adsManager.updateAd(args?.ad_id as string, updates));
+        return ok(await adsManager.updateAd(accountId(), args?.ad_id as string, updates));
       }
 
       // ── Bulk status ──
@@ -731,10 +731,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           return ok({ error: "No item IDs provided. Specify at least one campaign, ad group, or ad ID." });
         }
 
+        const acctId = accountId();
         const updateFn: Record<string, (id: string, updates: any) => Promise<any>> = {
-          CAMPAIGN: (id, u) => adsManager.updateCampaign(id, u),
-          AD_GROUP: (id, u) => adsManager.updateAdGroup(id, u),
-          AD: (id, u) => adsManager.updateAd(id, u),
+          CAMPAIGN: (id, u) => adsManager.updateCampaign(acctId, id, u),
+          AD_GROUP: (id, u) => adsManager.updateAdGroup(acctId, id, u),
+          AD: (id, u) => adsManager.updateAd(acctId, id, u),
         };
 
         const fn = updateFn[itemType];
