@@ -376,25 +376,27 @@ class RedditAdsManager {
   async createAdGroup(accountId: string, data: {
     campaignId: string;
     name: string;
-    bidMicro: number;
+    goalValue?: number;
     startTime: string;
     endTime?: string;
     target?: Record<string, any>;
-    bidStrategy?: string;
     configuredStatus?: string;
     optimizationGoal?: string;
+    viewThroughConversionType?: string;
   }): Promise<any> {
     const body: any = {
       campaign_id: data.campaignId,
       name: data.name,
-      bid_type: data.bidStrategy || "CPM",
-      bid_value: data.bidMicro,
+      bid_type: "CPM",
+      bid_strategy: "BIDLESS",
       start_time: data.startTime,
       configured_status: data.configuredStatus || "PAUSED",
     };
+    if (data.goalValue) body.goal_value = data.goalValue;
     if (data.endTime) body.end_time = data.endTime;
     if (data.target) body.targeting = data.target;
     if (data.optimizationGoal) body.optimization_goal = data.optimizationGoal;
+    if (data.viewThroughConversionType) body.view_through_conversion_type = data.viewThroughConversionType;
 
     return withResilience(
       () => this.apiCall("POST", `/ad_accounts/${accountId}/ad_groups`, { body: { data: body } }),
@@ -625,7 +627,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const bidDollars = args?.bid_dollars as number;
 
         // Bid validation: reject $0 and negative bids
-        if (bidDollars !== undefined && bidDollars <= 0) {
+        if (bidDollars !== undefined && bidDollars < 0) {
           return ok({ error: "bid_dollars must be positive (e.g., 2.50 for $2.50 bid)" });
         }
 
@@ -642,8 +644,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const target: Record<string, any> = {};
         if (args?.subreddit_names) target.communities = args.subreddit_names;
         if (args?.interest_ids) target.interests = args.interest_ids;
-        if (args?.geo_country_codes) target.geos = (args.geo_country_codes as string[]).map(c => ({ country: c }));
+        if (args?.geo_country_codes) target.geolocations = args.geo_country_codes as string[];
         if (args?.device_types) target.devices = args.device_types;
+        if (args?.keywords) target.keywords = args.keywords;
 
         // Safe by default: force PAUSED on create
         if (args?.configured_status && (args.configured_status as string) !== "PAUSED") {
@@ -652,12 +655,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return ok(await adsManager.createAdGroup(acctId, {
           campaignId: args?.campaign_id as string,
           name: args?.name as string,
-          bidMicro,
+          goalValue: args?.daily_budget_dollars ? Math.round((args.daily_budget_dollars as number) * 1_000_000) : undefined,
           startTime: args?.start_time as string,
           endTime: args?.end_time as string,
           target: Object.keys(target).length > 0 ? target : undefined,
-          bidStrategy: (args?.bid_strategy as string) || "CPM",
-          configuredStatus: "PAUSED", // force PAUSED -- override any user-supplied status
+          configuredStatus: "PAUSED",
+          viewThroughConversionType: (args?.view_through_conversion_type as string) || "SEVEN_DAY_CLICKS_ONE_DAY_VIEW",
           optimizationGoal: args?.optimization_goal as string,
         }));
       }
@@ -665,9 +668,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "reddit_ads_update_ad_group": {
         const updates: Record<string, any> = {};
         if (args?.name != null) updates.name = args.name;
-        if (args?.bid_dollars != null) updates.bid_micro = Math.round((args.bid_dollars as number) * 1_000_000);
         if (args?.configured_status != null) updates.configured_status = args.configured_status;
         if (args?.end_time != null) updates.end_time = args.end_time;
+        if (args?.daily_budget_dollars != null) updates.goal_value = Math.round((args.daily_budget_dollars as number) * 1_000_000);
+        if (args?.view_through_conversion_type != null) updates.view_through_conversion_type = args.view_through_conversion_type;
+        if (args?.optimization_goal != null) updates.optimization_goal = args.optimization_goal;
+        if (args?.geo_country_codes != null || args?.keywords != null) {
+          const targeting: Record<string, any> = {};
+          if (args?.geo_country_codes != null) targeting.geolocations = args.geo_country_codes;
+          if (args?.keywords != null) targeting.keywords = args.keywords;
+          updates.targeting = targeting;
+        }
         return ok(await adsManager.updateAdGroup(args?.ad_group_id as string, updates));
       }
 
