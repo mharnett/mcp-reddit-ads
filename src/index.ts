@@ -368,7 +368,7 @@ class RedditAdsManager {
 
   async updateCampaign(accountId: string, campaignId: string, updates: Record<string, any>): Promise<any> {
     return withResilience(
-      () => this.apiCall("PUT", `/ad_accounts/${accountId}/campaigns/${campaignId}`, { body: { data: updates } }),
+      () => this.apiCall("PATCH", `/campaigns/${campaignId}`, { body: { data: updates } }),
       "updateCampaign",
     );
   }
@@ -406,7 +406,7 @@ class RedditAdsManager {
 
   async updateAdGroup(accountId: string, adGroupId: string, updates: Record<string, any>): Promise<any> {
     return withResilience(
-      () => this.apiCall("PUT", `/ad_accounts/${accountId}/ad_groups/${adGroupId}`, { body: { data: updates } }),
+      () => this.apiCall("PATCH", `/ad_groups/${adGroupId}`, { body: { data: updates } }),
       "updateAdGroup",
     );
   }
@@ -446,7 +446,7 @@ class RedditAdsManager {
 
   async updateAd(accountId: string, adId: string, updates: Record<string, any>): Promise<any> {
     return withResilience(
-      () => this.apiCall("PUT", `/ad_accounts/${accountId}/ads/${adId}`, { body: { data: updates } }),
+      () => this.apiCall("PATCH", `/ads/${adId}`, { body: { data: updates } }),
       "updateAd",
     );
   }
