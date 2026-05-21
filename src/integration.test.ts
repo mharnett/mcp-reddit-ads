@@ -95,7 +95,13 @@ describe.skipIf(!LIVE)("mcp-reddit-ads integration", () => {
     });
     const data = parseToolResult(result);
     expect(data).toBeDefined();
-    expect(data.error || data.error_type).toBeDefined();
+    // Hard assertion: a structured error envelope MUST be present.
+    // Previously this used `data.error || data.error_type` which silently
+    // accepted broken-auth shapes — that's the escape hatch the v2 audit
+    // flagged. We now require `data.error` (a string message) and verify it
+    // is non-empty. error_type is optional supplementary metadata.
+    expect(typeof data.error).toBe("string");
+    expect(data.error.length).toBeGreaterThan(0);
   }, 15_000);
 
   it("reddit_ads_get_interest_categories returns categories", async () => {
