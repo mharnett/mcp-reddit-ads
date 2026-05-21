@@ -13,7 +13,8 @@ describe("safeResponse", () => {
       x: "y".repeat(100),
     }));
     const result = safeResponse(large, "test");
-    expect(result.length).toBeLessThan(large.length);
+    expect(result.length).toBeGreaterThanOrEqual(1);
+    expect(result.length).toBeLessThanOrEqual(large.length / 2);
   });
 
   it("truncates large rows in objects", () => {
@@ -25,7 +26,10 @@ describe("safeResponse", () => {
       row_count: 5000,
     };
     const result = safeResponse(obj, "test");
-    expect(result.rows.length).toBeLessThan(5000);
+    expect(result.rows.length).toBeGreaterThanOrEqual(1);
+    expect(result.rows.length).toBeLessThanOrEqual(2500);
+    expect((result as any).truncated).toBe(true);
+    expect(result.row_count).toBe(result.rows.length);
   });
 });
 
@@ -45,13 +49,16 @@ describe("withResilience", () => {
     };
     const result = await withResilience(fn, "test");
     expect(result).toEqual({ success: true });
-    expect(attempts).toBeGreaterThan(1);
+    expect(attempts).toBe(2);
   });
 
   it("fails after max retries", async () => {
+    let attempts = 0;
     const fn = async () => {
+      attempts++;
       throw new Error("500 Server Error");
     };
     await expect(withResilience(fn, "test")).rejects.toThrow("Server Error");
+    expect(attempts).toBe(4);
   });
 });

@@ -46,11 +46,10 @@ describe.skipIf(!LIVE)("mcp-reddit-ads integration", () => {
     });
     const data = parseToolResult(result);
     expect(data).toBeDefined();
-    expect(data.account_id || data.error).toBeDefined();
-    if (!data.error) {
-      expect(data.status).toBe("connected");
-      expect(data.total_campaigns).toBeGreaterThanOrEqual(0);
-    }
+    expect(data.error).toBeUndefined();
+    expect(data.status).toBe("connected");
+    expect(data.total_campaigns).toBeGreaterThanOrEqual(0);
+    expect(data.account_id).toBe(ACCOUNT_ID);
   }, 15_000);
 
   it("reddit_ads_get_campaigns returns campaigns", async () => {
@@ -60,10 +59,8 @@ describe.skipIf(!LIVE)("mcp-reddit-ads integration", () => {
     });
     const data = parseToolResult(result);
     expect(data).toBeDefined();
-    expect(data.data || data.error).toBeDefined();
-    if (data.data) {
-      expect(Array.isArray(data.data)).toBe(true);
-    }
+    expect(data.error).toBeUndefined();
+    expect(Array.isArray(data.data)).toBe(true);
   }, 15_000);
 
   it("reddit_ads_get_daily_performance returns report data", async () => {
@@ -76,8 +73,8 @@ describe.skipIf(!LIVE)("mcp-reddit-ads integration", () => {
     });
     const data = parseToolResult(result);
     expect(data).toBeDefined();
-    // Report data should be an object with data array or records
-    expect(typeof data === "object").toBe(true);
+    expect(data).not.toBeNull();
+    expect(data.error).toBeUndefined();
   }, 15_000);
 
   it("reddit_ads_search_subreddits with a query", async () => {
@@ -87,7 +84,8 @@ describe.skipIf(!LIVE)("mcp-reddit-ads integration", () => {
     });
     const data = parseToolResult(result);
     expect(data).toBeDefined();
-    expect(typeof data === "object").toBe(true);
+    expect(data).not.toBeNull();
+    expect(data.error).toBeUndefined();
   }, 15_000);
 
   it("error: invalid account_id returns error", async () => {
@@ -107,6 +105,7 @@ describe.skipIf(!LIVE)("mcp-reddit-ads integration", () => {
     });
     const data = parseToolResult(result);
     expect(data).toBeDefined();
-    expect(typeof data === "object").toBe(true);
+    expect(data).not.toBeNull();
+    expect(data.error).toBeUndefined();
   }, 15_000);
 });
