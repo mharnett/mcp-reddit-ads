@@ -1,4 +1,5 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
+import { createWriteGate } from "mcp-write-gate";
 
 /**
  * Tools that mutate Reddit Ads state. These are hidden from the tool list
@@ -7,7 +8,7 @@ import type { Tool } from "@modelcontextprotocol/sdk/types.js";
  * Adding a new tool? Put it in this set if it creates, modifies, pauses,
  * enables, removes, links, unlinks, or applies anything.
  */
-export const WRITE_TOOLS: ReadonlySet<string> = new Set([
+const WRITE_TOOLS: ReadonlySet<string> = new Set([
   "reddit_ads_create_campaign",
   "reddit_ads_update_campaign",
   "reddit_ads_create_ad_group",
@@ -18,21 +19,24 @@ export const WRITE_TOOLS: ReadonlySet<string> = new Set([
   "reddit_ads_enable_items",
 ]);
 
+const gate = createWriteGate({
+  writeTools: WRITE_TOOLS,
+  envPrefix: "REDDIT_ADS",
+});
+
 export function isWriteTool(name: string): boolean {
-  return WRITE_TOOLS.has(name);
+  return gate.isWriteTool(name);
 }
 
 export function isWriteEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
-  const v = (env.REDDIT_ADS_MCP_WRITE || "").trim().toLowerCase();
-  return v === "true" || v === "1" || v === "yes";
+  return gate.isWriteEnabled(env);
 }
 
 export function filterTools(
   allTools: readonly Tool[],
   env: NodeJS.ProcessEnv = process.env,
 ): Tool[] {
-  if (isWriteEnabled(env)) return [...allTools];
-  return allTools.filter((t) => !WRITE_TOOLS.has(t.name));
+  return gate.filterTools(allTools, env);
 }
 
 export const WRITE_DISABLED_MESSAGE =
@@ -46,9 +50,11 @@ export function assertWriteAllowed(
   toolName: string,
   env: NodeJS.ProcessEnv = process.env,
 ): void {
-  if (!isWriteTool(toolName)) return;
-  if (isWriteEnabled(env)) return;
-  throw new Error(
-    `Tool "${toolName}" is a write operation. ${WRITE_DISABLED_MESSAGE}`,
-  );
+  try {
+    gate.assertWriteAllowed(toolName, env);
+  } catch (e) {
+    throw new Error(
+      `Tool "${toolName}" is a write operation. ${WRITE_DISABLED_MESSAGE}`,
+    );
+  }
 }
