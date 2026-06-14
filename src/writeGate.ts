@@ -8,7 +8,7 @@ import { createWriteGate } from "mcp-write-gate";
  * Adding a new tool? Put it in this set if it creates, modifies, pauses,
  * enables, removes, links, unlinks, or applies anything.
  */
-const WRITE_TOOLS: ReadonlySet<string> = new Set([
+export const WRITE_TOOLS: ReadonlySet<string> = new Set([
   "reddit_ads_create_campaign",
   "reddit_ads_update_campaign",
   "reddit_ads_create_ad_group",
