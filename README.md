@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/mharnett-mcp-reddit-ads-badge.png)](https://mseep.ai/app/mharnett-mcp-reddit-ads)
+
 # mcp-reddit-ads
 
 MCP server for Reddit Ads API v3 -- campaign management, ad creation, performance reporting, and audience targeting via Claude.
