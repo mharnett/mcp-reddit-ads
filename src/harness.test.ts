@@ -16,5 +16,5 @@ registerMcpTests({
   hasPlatform: false,
   requiredEnvVars: ["REDDIT_CLIENT_ID", "REDDIT_CLIENT_SECRET", "REDDIT_REFRESH_TOKEN"],
   envPrefix: "REDDIT_",
-  sourceLintIgnore: ["index.ts"], // index.ts uses execFileSync for Keychain + new URL for path resolution
+  sourceLintIgnore: ["index.ts"], // index.ts uses execFileSync for Keychain (darwin-guarded)
 });
