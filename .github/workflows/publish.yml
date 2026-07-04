@@ -1,8 +1,14 @@
-name: Publish to npm
+# CI tests only. Publishing is MANUAL: `npm publish` locally + passkey (WebAuthn) 2FA.
+# CI publish is not possible for this npm account — the `drak-marketing` account
+# enforces 2FA with publish tokens disallowed, so any token-based `npm publish`
+# fails with `npm error code EOTP`. See ~/.claude memory: npm-mcp-publishing.
+name: CI
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   test:
@@ -16,24 +22,3 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm test
-
-  publish:
-    needs: test
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-          registry-url: 'https://registry.npmjs.org'
-
-      - run: npm ci
-      - run: npm run build
-      - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
