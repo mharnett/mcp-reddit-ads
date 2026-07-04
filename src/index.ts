@@ -8,6 +8,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { readFileSync, existsSync } from "fs";
 import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 import {
   RedditAdsAuthError,
   RedditAdsRateLimitError,
@@ -22,11 +23,11 @@ import { checkForUpdate } from "mcp-updatenotifier";
 import v8 from "v8";
 
 // CLI package info
-const __cliPkg = JSON.parse(readFileSync(join(dirname(new URL(import.meta.url).pathname), "..", "package.json"), "utf-8"));
+const __cliPkg = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "package.json"), "utf-8"));
 
 // Log build fingerprint at startup
 try {
-  const __buildInfoDir = dirname(new URL(import.meta.url).pathname);
+  const __buildInfoDir = dirname(fileURLToPath(import.meta.url));
   const buildInfo = JSON.parse(readFileSync(join(__buildInfoDir, "build-info.json"), "utf-8"));
   console.error(`[build] SHA: ${buildInfo.sha} (${buildInfo.builtAt})`);
 } catch {
@@ -100,7 +101,7 @@ interface Config {
 
 function loadConfig(): Config {
   // Try config.json first
-  const configPath = join(dirname(new URL(import.meta.url).pathname), "..", "config.json");
+  const configPath = join(dirname(fileURLToPath(import.meta.url)), "..", "config.json");
   let config: Config;
 
   if (existsSync(configPath)) {
