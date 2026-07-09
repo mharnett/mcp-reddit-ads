@@ -47,5 +47,9 @@
     "tsx": "^4.7.0",
     "typescript": "^5.3.0",
     "vitest": "^4.0.18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mharnett/mcp-reddit-ads.git"
   }
 }
