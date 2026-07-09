@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.1.2](https://github.com/mharnett/mcp-reddit-ads/compare/mcp-reddit-ads-v1.1.1...mcp-reddit-ads-v1.1.2) (2026-07-09)
+
+
+### Bug Fixes
+
+* budget validation, GAQL mutation blocking, future date checks, limit caps ([1d8c954](https://github.com/mharnett/mcp-reddit-ads/commit/1d8c95442c14abbd13446262c5a3dbcc3afc5df8))
+* **ci:** registry lockfile + remove orphan updateNotifier.test.ts ([#4](https://github.com/mharnett/mcp-reddit-ads/issues/4)) ([464bdb4](https://github.com/mharnett/mcp-reddit-ads/commit/464bdb4588be249e9263f0d4c3ce601708628dfb))
+* config.json no longer required when using env vars ([0d0fac2](https://github.com/mharnett/mcp-reddit-ads/commit/0d0fac2d5eb61d88f70624a73067277bd7b5b157))
+* error server prefix, isError consistency, validateCredentials, CHANGELOG ([843ee83](https://github.com/mharnett/mcp-reddit-ads/commit/843ee837d2d5dbabb877de52f770023220ebb32e))
+* error size limits, safeResponse mutation, CHANGELOG, security warnings ([b34ee9d](https://github.com/mharnett/mcp-reddit-ads/commit/b34ee9dc8f9d7c954808b8bdb492359e58adfb6e))
+* ID validation, path resolution, health tools, descriptions ([3b0d785](https://github.com/mharnett/mcp-reddit-ads/commit/3b0d785b4adfbe9c02466beccd0e4e99ad21cf0d))
+* Node 18.18 minimum, env var trimming, unhandledRejection, TTY guard ([47102e6](https://github.com/mharnett/mcp-reddit-ads/commit/47102e6289ef0402897a6d0b08dc27c19d53d5b5))
+* README accuracy, env var docs, dependency cleanup ([c639b31](https://github.com/mharnett/mcp-reddit-ads/commit/c639b3123980d6234dcc814d698ab5a0b314400c))
+* resolve import and export issues from cascade failure ([e448836](https://github.com/mharnett/mcp-reddit-ads/commit/e448836c815040fec7a3b56e1fe2ea01e10e9187))
+* startup checks, credential redaction, schema hardening, format validation ([cc09c5d](https://github.com/mharnett/mcp-reddit-ads/commit/cc09c5d2c64ce408711986eab4de3a3c9304322d))
+* stderr logging, Linux/Docker compat, SIGPIPE, version fallback ([2aa081f](https://github.com/mharnett/mcp-reddit-ads/commit/2aa081f743a29c072ec1f3711d526bfd3a376751))
+* use fileURLToPath for path resolution (Windows CI green) ([#6](https://github.com/mharnett/mcp-reddit-ads/issues/6)) ([3267dd7](https://github.com/mharnett/mcp-reddit-ads/commit/3267dd760bb4f880762122823ddfade80fcedb65))
+* version field, safeResponse loop, auth retry, SIGTERM handling ([6453862](https://github.com/mharnett/mcp-reddit-ads/commit/6453862823ad61a296c7b7a73175dd4d8981fb4f))
+
 ## [1.1.1] - 2026-04-18
 
 ### Added
