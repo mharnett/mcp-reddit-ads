@@ -17,6 +17,7 @@ import {
   validateCredentials,
 } from "./errors.js";
 import { tools } from "./tools.js";
+import { buildAdGroupCreateBody } from "./adGroupBody.js";
 import { withResilience, safeResponse, logger } from "./resilience.js";
 import { filterTools, assertWriteAllowed, isWriteEnabled } from "./writeGate.js";
 import { checkForUpdate } from "mcp-updatenotifier";
@@ -368,7 +369,7 @@ class RedditAdsManager {
 
   async updateCampaign(accountId: string, campaignId: string, updates: Record<string, any>): Promise<any> {
     return withResilience(
-      () => this.apiCall("PATCH", `/campaigns/${campaignId}`, { body: { data: updates } }),
+      () => this.apiCall("PATCH", `/ad_accounts/${accountId}/campaigns/${campaignId}`, { body: { data: updates } }),
       "updateCampaign",
     );
   }
@@ -384,20 +385,7 @@ class RedditAdsManager {
     optimizationGoal?: string;
     viewThroughConversionType?: string;
   }): Promise<any> {
-    const body: any = {
-      campaign_id: data.campaignId,
-      name: data.name,
-      bid_type: "CPM",
-      bid_strategy: "BIDLESS",
-      start_time: data.startTime,
-      configured_status: data.configuredStatus || "PAUSED",
-    };
-    if (data.goalValue) body.goal_value = data.goalValue;
-    if (data.endTime) body.end_time = data.endTime;
-    if (data.target) body.targeting = data.target;
-    if (data.optimizationGoal) body.optimization_goal = data.optimizationGoal;
-    if (data.viewThroughConversionType) body.view_through_conversion_type = data.viewThroughConversionType;
-
+    const body = buildAdGroupCreateBody(data);
     return withResilience(
       () => this.apiCall("POST", `/ad_accounts/${accountId}/ad_groups`, { body: { data: body } }),
       "createAdGroup",
@@ -406,7 +394,7 @@ class RedditAdsManager {
 
   async updateAdGroup(accountId: string, adGroupId: string, updates: Record<string, any>): Promise<any> {
     return withResilience(
-      () => this.apiCall("PATCH", `/ad_groups/${adGroupId}`, { body: { data: updates } }),
+      () => this.apiCall("PATCH", `/ad_accounts/${accountId}/ad_groups/${adGroupId}`, { body: { data: updates } }),
       "updateAdGroup",
     );
   }
@@ -446,7 +434,7 @@ class RedditAdsManager {
 
   async updateAd(accountId: string, adId: string, updates: Record<string, any>): Promise<any> {
     return withResilience(
-      () => this.apiCall("PATCH", `/ads/${adId}`, { body: { data: updates } }),
+      () => this.apiCall("PATCH", `/ad_accounts/${accountId}/ads/${adId}`, { body: { data: updates } }),
       "updateAd",
     );
   }
@@ -624,12 +612,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       // ── Write: Ad Groups ──
       case "reddit_ads_create_ad_group": {
         const acctId = accountId();
-        const bidDollars = args?.bid_dollars as number;
-
-        // Bid validation: reject $0 and negative bids
-        if (bidDollars !== undefined && bidDollars < 0) {
-          return ok({ error: "bid_dollars must be positive (e.g., 2.50 for $2.50 bid)" });
-        }
 
         // Validate configured_status enum
         if (args?.configured_status) {
@@ -640,7 +622,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           }
         }
 
-        const bidMicro = Math.round(bidDollars * 1_000_000);
         const target: Record<string, any> = {};
         if (args?.subreddit_names) target.communities = args.subreddit_names;
         if (args?.interest_ids) target.interests = args.interest_ids;
