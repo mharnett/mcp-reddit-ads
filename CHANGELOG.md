@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.1.3](https://github.com/mharnett/mcp-reddit-ads/compare/mcp-reddit-ads-v1.1.2...mcp-reddit-ads-v1.1.3) (2026-09-03)
+
+
+### Bug Fixes
+
+* **ad-groups:** finish BIDLESS migration — account-scoped update URLs, drop dead bid fields, add tests ([0b2f5b8](https://github.com/mharnett/mcp-reddit-ads/commit/0b2f5b888e6020b4921a17e3d46b346d4f0661aa))
+* **ad-groups:** finish BIDLESS migration — account-scoped update URLs, drop dead bid fields, add tests ([cfff8af](https://github.com/mharnett/mcp-reddit-ads/commit/cfff8af410566d810c1e49d3a444e370e3814b97))
+* BIDLESS bid strategy, geolocations format, keywords, and update_ad_group improvements ([c844e6c](https://github.com/mharnett/mcp-reddit-ads/commit/c844e6cafec6e26dbdc88187736b1ab199f900db))
+* correct PUT endpoints to include /ad_accounts/{id}/ prefix ([410dcee](https://github.com/mharnett/mcp-reddit-ads/commit/410dceeb86c60bfd9c1232b8ff3472f341e7f9d8))
+* use PATCH method without account_id prefix for update operations ([90008e1](https://github.com/mharnett/mcp-reddit-ads/commit/90008e1071fc80500ae2386b57cca13bcb66ce5c))
+
 ## [1.1.2](https://github.com/mharnett/mcp-reddit-ads/compare/mcp-reddit-ads-v1.1.1...mcp-reddit-ads-v1.1.2) (2026-07-09)
 
 
