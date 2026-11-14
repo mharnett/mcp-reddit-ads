@@ -2,6 +2,57 @@
 
 MCP server for Reddit Ads API v3 -- campaign management, ad creation, performance reporting, and audience targeting via Claude.
 
+## Quick install
+
+Claude Code, one line (replace the placeholder values with your own; see [Configuration](#configuration) for how to get them):
+
+```bash
+claude mcp add --env REDDIT_CLIENT_ID=YOUR_CLIENT_ID --env REDDIT_CLIENT_SECRET=YOUR_CLIENT_SECRET --env REDDIT_REFRESH_TOKEN=YOUR_REFRESH_TOKEN --transport stdio mcp-reddit-ads -- npx -y mcp-reddit-ads
+```
+
+The server starts read-only. Add `--env REDDIT_ADS_MCP_WRITE=true` to expose the tools that change an account; new items are always created PAUSED.
+
+<details>
+<summary>Claude Desktop</summary>
+
+Add this to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS), then fully quit and restart Claude Desktop:
+
+```json
+{
+  "mcpServers": {
+    "mcp-reddit-ads": {
+      "command": "npx",
+      "args": ["-y", "mcp-reddit-ads"],
+      "env": {
+        "REDDIT_CLIENT_ID": "YOUR_CLIENT_ID",
+        "REDDIT_CLIENT_SECRET": "YOUR_CLIENT_SECRET",
+        "REDDIT_REFRESH_TOKEN": "YOUR_REFRESH_TOKEN"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Codex CLI</summary>
+
+Add this to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.mcp-reddit-ads]
+command = "npx"
+args = ["-y", "mcp-reddit-ads"]
+
+[mcp_servers.mcp-reddit-ads.env]
+REDDIT_CLIENT_ID = "YOUR_CLIENT_ID"
+REDDIT_CLIENT_SECRET = "YOUR_CLIENT_SECRET"
+REDDIT_REFRESH_TOKEN = "YOUR_REFRESH_TOKEN"
+```
+
+</details>
+
 ## Features
 
 - **18 tools** covering full CRUD for campaigns, ad groups, and ads
