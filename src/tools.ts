@@ -108,7 +108,7 @@ export const tools: Tool[] = [
   {
     name: "reddit_ads_create_campaign",
     description:
-      "Create a new Reddit ad campaign. Created as PAUSED by default for safety.",
+      "Create a new Reddit ad campaign. Always created PAUSED for safety.",
     inputSchema: {
       additionalProperties: false,
       type: "object",
@@ -122,7 +122,7 @@ export const tools: Tool[] = [
         start_time: { type: "string", description: "Start datetime in ISO 8601 (e.g. 2026-03-17T00:00:00Z)." },
         account_id: { type: "string", description: "Ad account ID. Uses default if not provided." },
         end_time: { type: "string", description: "Optional end datetime in ISO 8601." },
-        configured_status: { type: "string", description: "ACTIVE or PAUSED. Defaults to PAUSED." },
+        configured_status: { type: "string", description: "Always PAUSED on create; ACTIVE is overridden. Activate with the update tool or enable_items." },
       },
       required: ["name", "objective", "daily_budget_dollars", "start_time"],
     },
@@ -148,7 +148,7 @@ export const tools: Tool[] = [
   {
     name: "reddit_ads_create_ad_group",
     description:
-      "Create an ad group within a campaign. Created as PAUSED by default.",
+      "Create an ad group within a campaign. Always created PAUSED.",
     inputSchema: {
       additionalProperties: false,
       type: "object",
@@ -161,7 +161,7 @@ export const tools: Tool[] = [
         daily_budget_dollars: { type: "number", description: "Daily budget in dollars (e.g. 20 for $20/day). Minimum $5." },
         keywords: { type: "array", items: { type: "string" }, description: "Keywords for keyword targeting." },
         view_through_conversion_type: { type: "string", description: "View-through conversion window. Use SEVEN_DAY_CLICKS_ONE_DAY_VIEW for LEAD campaigns." },
-        configured_status: { type: "string", description: "ACTIVE or PAUSED. Defaults to PAUSED." },
+        configured_status: { type: "string", description: "Always PAUSED on create; ACTIVE is overridden. Activate with the update tool or enable_items." },
         optimization_goal: { type: "string", description: "IMPRESSIONS, CLICKS, CONVERSIONS, etc." },
         subreddit_names: { type: "array", items: { type: "string" }, description: "Subreddit names to target (without r/ prefix)." },
         interest_ids: { type: "array", items: { type: "string" }, description: "Interest category IDs for targeting." },
@@ -196,7 +196,7 @@ export const tools: Tool[] = [
   {
     name: "reddit_ads_create_ad",
     description:
-      "Create a new Reddit ad within an ad group. Created as PAUSED by default.",
+      "Create a new Reddit ad within an ad group. Always created PAUSED.",
     inputSchema: {
       additionalProperties: false,
       type: "object",
@@ -209,7 +209,7 @@ export const tools: Tool[] = [
         thumbnail_url: { type: "string", description: "URL to image asset (for image ads)." },
         body_text: { type: "string", description: "Optional body text." },
         call_to_action: { type: "string", description: "CTA: SIGN_UP, LEARN_MORE, SHOP_NOW, INSTALL, GET_QUOTE, CONTACT_US, DOWNLOAD." },
-        configured_status: { type: "string", description: "ACTIVE or PAUSED. Defaults to PAUSED." },
+        configured_status: { type: "string", description: "Always PAUSED on create; ACTIVE is overridden. Activate with the update tool or enable_items." },
         creative_type: { type: "string", description: "IMAGE, VIDEO, CAROUSEL, or TEXT. Defaults to IMAGE." },
         video_url: { type: "string", description: "URL to video asset (for video ads)." },
         post_url: { type: "string", description: "URL to existing Reddit post to promote." },

@@ -6,7 +6,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { readFileSync, existsSync } from "fs";
+import { readFileSync, existsSync, realpathSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import {
@@ -364,6 +364,7 @@ class RedditAdsManager {
     return withResilience(
       () => this.apiCall("POST", `/ad_accounts/${accountId}/campaigns`, { body: { data: body } }),
       "createCampaign",
+      { idempotent: false },
     );
   }
 
@@ -389,6 +390,7 @@ class RedditAdsManager {
     return withResilience(
       () => this.apiCall("POST", `/ad_accounts/${accountId}/ad_groups`, { body: { data: body } }),
       "createAdGroup",
+      { idempotent: false },
     );
   }
 
@@ -429,6 +431,7 @@ class RedditAdsManager {
     return withResilience(
       () => this.apiCall("POST", `/ad_accounts/${accountId}/ads`, { body: { data: adData } }),
       "createAd",
+      { idempotent: false },
     );
   }
 
@@ -476,7 +479,10 @@ class RedditAdsManager {
 const config = loadConfig();
 const adsManager = new RedditAdsManager(config);
 
-const server = new Server(
+// Exported so tests can connect an in-memory transport and drive the real
+// tools/list and tools/call handlers registered below. main() is the only
+// production caller of server.connect().
+export const server = new Server(
   { name: __cliPkg.name, version: __cliPkg.version },
   { capabilities: { tools: {} } },
 );
@@ -676,6 +682,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           }
         }
 
+        // Safe by default: force PAUSED on create, like campaigns and ad groups.
+        // A new ad in an already-live ad group would otherwise serve at once.
+        if (args?.configured_status && (args.configured_status as string) !== "PAUSED") {
+          logger.warn({ requested: args.configured_status }, "Overriding configured_status to PAUSED for safety -- use update_ad or enable_items to activate");
+        }
         return ok(await adsManager.createAd(acctId, {
           adGroupId: args?.ad_group_id as string,
           name: args?.name as string,
@@ -684,7 +695,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           thumbnailUrl: args?.thumbnail_url as string,
           bodyText: args?.body_text as string,
           callToAction: (args?.call_to_action as string) || "LEARN_MORE",
-          configuredStatus: (args?.configured_status as string) || "PAUSED",
+          configuredStatus: "PAUSED", // force PAUSED -- override any user-supplied status
           creativeType: (args?.creative_type as string) || "IMAGE",
           videoUrl: args?.video_url as string,
           postUrl: args?.post_url as string,
@@ -818,4 +829,20 @@ process.on("unhandledRejection", (reason) => {
   console.error("[error] Unhandled promise rejection:", reason);
 });
 
-main().catch(console.error);
+// Only auto-start the server when this module is executed directly (as the
+// CLI entrypoint, including through the npx/bin symlink), not when a test
+// imports it. Comparing the resolved module path to process.argv[1] is the
+// ESM equivalent of the CommonJS `require.main === module` guard.
+function isMainModule(): boolean {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  try {
+    return fileURLToPath(import.meta.url) === realpathSync(entry);
+  } catch {
+    return false;
+  }
+}
+
+if (isMainModule()) {
+  main().catch(console.error);
+}

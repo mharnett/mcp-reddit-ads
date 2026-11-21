@@ -62,3 +62,19 @@ describe("withResilience", () => {
     expect(attempts).toBe(4);
   });
 });
+
+describe("withResilience for non-idempotent writes", () => {
+  it("makes one attempt when idempotent is false", async () => {
+    let attempts = 0;
+    const fn = async () => {
+      attempts++;
+      throw new Error("503 Service Unavailable");
+    };
+    await expect(withResilience(fn, "createThing", { idempotent: false })).rejects.toThrow("Service Unavailable");
+    expect(attempts).toBe(1);
+  });
+
+  it("still returns the result when the single attempt succeeds", async () => {
+    await expect(withResilience(async () => ({ id: "x" }), "createThing", { idempotent: false })).resolves.toEqual({ id: "x" });
+  });
+});
