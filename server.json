@@ -6,17 +6,34 @@
     "url": "https://github.com/mharnett/mcp-reddit-ads",
     "source": "github"
   },
-  "version": "1.0.1",
+  "version": "1.1.4",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "mcp-reddit-ads",
-      "version": "1.0.1",
-      "transport": { "type": "stdio" },
+      "version": "1.1.4",
+      "transport": {
+        "type": "stdio"
+      },
       "environmentVariables": [
-        { "name": "REDDIT_CLIENT_ID", "description": "Reddit OAuth app client ID", "isRequired": true, "isSecret": false },
-        { "name": "REDDIT_CLIENT_SECRET", "description": "Reddit OAuth app client secret", "isRequired": true, "isSecret": true },
-        { "name": "REDDIT_REFRESH_TOKEN", "description": "Reddit OAuth refresh token", "isRequired": true, "isSecret": true }
+        {
+          "name": "REDDIT_CLIENT_ID",
+          "description": "Reddit OAuth app client ID",
+          "isRequired": true,
+          "isSecret": false
+        },
+        {
+          "name": "REDDIT_CLIENT_SECRET",
+          "description": "Reddit OAuth app client secret",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "REDDIT_REFRESH_TOKEN",
+          "description": "Reddit OAuth refresh token",
+          "isRequired": true,
+          "isSecret": true
+        }
       ]
     }
   ]
