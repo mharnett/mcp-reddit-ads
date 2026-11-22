@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.4](https://github.com/mharnett/mcp-reddit-ads/compare/mcp-reddit-ads-v1.1.3...mcp-reddit-ads-v1.1.4) (2026-11-22)
+
+
+### Bug Fixes
+
+* force PAUSED on create_ad, send creates once, test the gate at the dispatch ([#15](https://github.com/mharnett/mcp-reddit-ads/issues/15)) ([dbd491e](https://github.com/mharnett/mcp-reddit-ads/commit/dbd491ecf86429fc7546099d8ae4b8863a800bca))
+* send pino logs to stderr under piped stdio ([#17](https://github.com/mharnett/mcp-reddit-ads/issues/17)) ([d34a62c](https://github.com/mharnett/mcp-reddit-ads/commit/d34a62c32ea2beb1931f2ead3cb3b93fc8446a29))
+
 ## [1.1.3](https://github.com/mharnett/mcp-reddit-ads/compare/mcp-reddit-ads-v1.1.2...mcp-reddit-ads-v1.1.3) (2026-09-03)
 
 
