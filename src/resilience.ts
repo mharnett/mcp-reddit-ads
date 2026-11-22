@@ -113,18 +113,24 @@ const timeoutPolicy = timeout(30_000, TimeoutStrategy.Cooperative);
 
 const policy = wrap(timeoutPolicy, circuitBreakerPolicy, retryPolicy);
 
+// Non-idempotent writes (creates) go out once: a 5xx or dropped connection
+// after Reddit stored the object would otherwise create it again on retry.
+const noRetryPolicy = wrap(timeoutPolicy, circuitBreakerPolicy);
+
 // ============================================
 // WRAPPED API CALL WITH LOGGING
 // ============================================
 
 export async function withResilience<T>(
   fn: () => Promise<T>,
-  operationName: string
+  operationName: string,
+  options: { idempotent?: boolean } = {},
 ): Promise<T> {
   try {
     logger.debug({ operation: operationName }, "Starting API call");
 
-    const result = await policy.execute(() => fn());
+    const chosen = options.idempotent === false ? noRetryPolicy : policy;
+    const result = await chosen.execute(() => fn());
 
     logger.debug({ operation: operationName }, "API call succeeded");
     return result;

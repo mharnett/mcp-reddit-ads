@@ -211,7 +211,7 @@ Environment variables take precedence over config file values.
 
 - **Spend values** are returned from the API in microcurrency (1 dollar = 1,000,000 microcurrency units). Divide by 1,000,000 to get dollar amounts. Budget inputs accept dollars and auto-convert.
 - **Dates and times** use ISO 8601 format (`YYYY-MM-DDTHH:MM:SSZ`).
-- **New entities default to PAUSED** status. Explicitly set status to `ACTIVE` to go live.
+- **New entities are always created PAUSED**, whatever `configured_status` says. Use an update tool or `reddit_ads_enable_items` to go live.
 - **Report metrics** default to the set configured in `config.json` but can be overridden per request.
 
 ## Architecture
