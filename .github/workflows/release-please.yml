@@ -2,7 +2,9 @@ name: release-please
 
 # Opens / updates a Release PR based on conventional commits on main.
 # When you merge the Release PR, it tags + creates a GitHub Release,
-# which in turn triggers publish.yml to push to npm via OIDC.
+# and dispatches publish.yml (a step below) to push to npm via OIDC.
+# Each time it opens or updates the Release PR, it dispatches test.yml on
+# that PR's branch so the required test checks report on the PR.
 #
 # Manifest mode: the last-released version is pinned in
 # .release-please-manifest.json so release-please proposes the NEXT version
@@ -18,12 +20,46 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  # Lets GITHUB_TOKEN dispatch publish.yml and test.yml below.
+  actions: write
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v4
+        id: release
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+      # GITHUB_TOKEN events don't trigger other workflows, except
+      # workflow_dispatch. Publishing stays in publish.yml because npm's
+      # Trusted Publisher is registered to that filename.
+      - name: Dispatch publish.yml
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run publish.yml --repo ${{ github.repository }} -f ref=${{ steps.release.outputs.tag_name }}
+      # The Release PR branch is pushed with GITHUB_TOKEN too, so its
+      # pull_request run never starts or waits for approval, and the
+      # required `test (…)` checks never report. Dispatch test.yml on each
+      # Release PR branch release-please just opened or updated (an
+      # unchanged PR is not re-pushed and keeps its checks). The run's
+      # checks land on the branch head, which is the PR's head commit,
+      # under the same names.
+      - name: Dispatch test.yml on the Release PR branch
+        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRS: ${{ steps.release.outputs.prs }}
+        run: |
+          set -euo pipefail
+          branches="$(jq -r '.[] | .headBranchName // empty' <<<"$PRS")"
+          if [ -z "$branches" ]; then
+            echo "::error::release-please reported a Release PR but no head branch."
+            exit 1
+          fi
+          while IFS= read -r branch; do
+            gh workflow run test.yml --repo "$GITHUB_REPOSITORY" --ref "$branch"
+            echo "Dispatched test.yml on $branch."
+          done <<<"$branches"
