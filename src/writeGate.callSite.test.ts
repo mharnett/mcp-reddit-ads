@@ -15,6 +15,7 @@
 
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 
 import { createRecordingFetch, FAKE_ACCOUNT_ID, FAKE_ENV } from "../tests/helpers/fakeRedditApi.js";
 import { bodyOf, connectInMemory } from "../tests/helpers/connect.js";
@@ -139,5 +140,25 @@ describe("write gate open (REDDIT_ADS_MCP_WRITE=true)", () => {
     expect(api.apiRequests.map((r) => `${r.method} ${r.path}`)).toEqual([
       `PATCH /ad_accounts/${FAKE_ACCOUNT_ID}/campaigns/c1`,
     ]);
+  });
+
+  // SDK 1.x validates a task call's result only after the handler has run, so
+  // a write that got that far would land and then report an error, inviting a
+  // retry. The server declares no tasks capability, so it must be refused first.
+  it("refuses a task-augmented write before any Reddit request", async () => {
+    const asTask = client.request(
+      {
+        method: "tools/call",
+        params: {
+          name: "reddit_ads_update_campaign",
+          arguments: { account_id: FAKE_ACCOUNT_ID, campaign_id: "c1", name: "renamed" },
+          task: { ttl: 60_000 },
+        },
+      },
+      CallToolResultSchema,
+    );
+
+    await expect(asTask).rejects.toThrow();
+    expect(api.total).toBe(0);
   });
 });
