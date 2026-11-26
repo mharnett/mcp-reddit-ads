@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.5](https://github.com/mharnett/mcp-reddit-ads/compare/mcp-reddit-ads-v1.1.4...mcp-reddit-ads-v1.1.5) (2026-11-26)
+
+
+### Bug Fixes
+
+* keep the rotated refresh token out of arguments and logs ([#30](https://github.com/mharnett/mcp-reddit-ads/issues/30)) ([818f21f](https://github.com/mharnett/mcp-reddit-ads/commit/818f21f1aa0ba9b67278d4c7e39a48dd3be089dc))
+
 ## [1.1.4](https://github.com/mharnett/mcp-reddit-ads/compare/mcp-reddit-ads-v1.1.3...mcp-reddit-ads-v1.1.4) (2026-11-22)
 
 
