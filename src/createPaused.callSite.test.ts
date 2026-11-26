@@ -23,6 +23,9 @@ vi.mock("child_process", async (importOriginal) => ({
   execFileSync: () => {
     throw new Error("child_process is disabled in this test");
   },
+  spawnSync: () => {
+    throw new Error("child_process is disabled in this test");
+  },
 }));
 
 const api = createRecordingFetch();

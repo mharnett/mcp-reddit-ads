@@ -19,6 +19,7 @@ import {
 import { tools } from "./tools.js";
 import { buildAdGroupCreateBody } from "./adGroupBody.js";
 import { withResilience, safeResponse, logger } from "./resilience.js";
+import { persistSecretToKeychain } from "./keychain.js";
 import { filterTools, assertWriteAllowed, isWriteEnabled } from "./writeGate.js";
 import { checkForUpdate } from "mcp-updatenotifier";
 import v8 from "v8";
@@ -210,13 +211,11 @@ class RedditAdsManager {
     if (data.refresh_token && data.refresh_token !== auth.refresh_token) {
       auth.refresh_token = data.refresh_token;
       if (process.platform === "darwin") {
-        try {
-          const { execFileSync } = await import("child_process");
-          try { execFileSync("security", ["delete-generic-password", "-a", "reddit-ads-mcp", "-s", "REDDIT_REFRESH_TOKEN"], { stdio: "ignore" }); } catch { /* may not exist yet */ }
-          execFileSync("security", ["add-generic-password", "-a", "reddit-ads-mcp", "-s", "REDDIT_REFRESH_TOKEN", "-w", data.refresh_token]);
+        // Single atomic upsert (-U), secret on stdin. See keychain.ts.
+        if (persistSecretToKeychain("REDDIT_REFRESH_TOKEN", data.refresh_token)) {
           console.error("[token] Rotated refresh token persisted to Keychain");
-        } catch (err) {
-          console.error("[token] WARNING: Failed to persist rotated refresh token to Keychain:", err);
+        } else {
+          console.error("[token] WARNING: Failed to persist rotated refresh token to Keychain. This session will use it; the stored entry is unchanged.");
         }
       } else {
         console.error("[token] Refresh token rotated. Update your REDDIT_REFRESH_TOKEN environment variable to persist across restarts.");
